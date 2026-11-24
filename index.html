@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b18"><link rel="manifest" href="/manifest.webmanifest">
+<title>NEON AI</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0%,#1b2858,#080b18 58%);color:#f4f6ff;font:16px system-ui,sans-serif;min-height:100vh;display:flex;justify-content:center}.app{width:min(100%,820px);height:100dvh;display:flex;flex-direction:column;padding:14px 18px env(safe-area-inset-bottom)}header{display:flex;align-items:center;gap:12px;padding:10px 2px 16px;border-bottom:1px solid #29365e}.logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#00e5ff,#8b5cf6);display:grid;place-items:center;color:#07101e;font-weight:900;font-size:24px;box-shadow:0 0 26px #00d9ff55}h1{font-size:21px;margin:0;letter-spacing:2px}header small{color:#9ba8d3}.status{margin-left:auto;font-size:11px;color:#6ef0c2;background:#12332f;padding:6px 9px;border-radius:20px}#chat{flex:1;overflow:auto;display:flex;flex-direction:column;gap:13px;padding:18px 2px}.msg{max-width:90%;padding:13px 15px;border-radius:17px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}.bot{align-self:flex-start;background:#151d38;border:1px solid #29365e}.user{align-self:flex-end;background:linear-gradient(135deg,#164d70,#49318a);border:1px solid #5273ba}.typing{color:#91a1d2;font-size:13px;padding:0 5px}form{display:flex;gap:9px;padding:12px 0 10px}input{min-width:0;flex:1;background:#111831;border:1px solid #34436d;border-radius:15px;padding:15px;color:white;font:inherit;outline:none}input:focus{border-color:#00d9ff}button{border:0;border-radius:15px;padding:0 20px;background:linear-gradient(135deg,#00d9ff,#8b5cf6);color:#07101e;font-weight:900;font-size:20px}button:disabled{opacity:.5}.foot{color:#7787b5;font-size:11px;text-align:center;padding:2px 0 8px}
+</style></head>
+<body><main class="app"><header><div class="logo">N</div><div><h1>NEON AI</h1><small>Твой интеллектуальный помощник</small></div><div class="status">● ONLINE</div></header>
+<section id="chat"><div class="msg bot">Привет! Я NEON AI ✨ Теперь мой интерфейс подключён к серверу искусственного интеллекта. Спрашивай о чём угодно!</div></section>
+<form id="form"><input id="message" placeholder="Спроси что-нибудь..." autocomplete="off"><button id="send" aria-label="Отправить">➤</button></form><div class="foot">NEON AI · AI CHAT</div></main>
+<script>
+const chat=document.querySelector('#chat'),form=document.querySelector('#form'),input=document.querySelector('#message'),send=document.querySelector('#send');
+let history=[];
+function add(text,who){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d}
+form.addEventListener('submit',async e=>{e.preventDefault();const message=input.value.trim();if(!message||send.disabled)return;add(message,'user');input.value='';send.disabled=true;const wait=add('NEON AI думает…','bot');
+try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,history})});const data=await r.json();if(!r.ok)throw new Error(data.error||'Ошибка сервера');wait.textContent=data.reply;history.push({role:'user',content:message},{role:'assistant',content:data.reply});if(history.length>20)history=history.slice(-20)}
+catch(err){wait.textContent='Не удалось получить ответ: '+err.message+'. Проверь, что сервер запущен и API-ключ настроен.'}
+finally{send.disabled=false;input.focus();}});
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+</script></body></html>
